@@ -13,9 +13,12 @@ import InkApp.Reaction;
 import InkApp.Reaction.Mass;
 import InkApp.UC;
 import InkApp.Ink.NamedInk;
+import music1.Sys.Layout;
 
 public class Music1 extends Mass{
-	public static final int marX = 50, MarX = 750, H = 8;
+  public static final int marX = 50, MarX = 750, H = 8;
+	public static Layout layout = new Layout(marX, MarX, H); 
+  
 	public static Layer staffs = Layer.getNewLayer();
 	public static Layer bars = Layer.getNewLayer();
 	public static VS tempBox = new VS(new V(), new V(H,H));
@@ -23,19 +26,25 @@ public class Music1 extends Mass{
   
 	public Music1() {
 		Mass.DEFAULT = this;
-		addReaction(new Reaction("E-E","add-staff"){
-
+		addReaction(new Reaction("E-E","add-staff to the sys layout"){
 			public int bid(Stroke g) {
-				if(staffs.isEmpty()) {
+				if(layout.fmts.isEmpty()) {
 					return 100;
 				} else {
-					Staff last = (Staff) staffs.get(staffs.size()-1);
-					return (g.vs.loc.y > last.y + 12*H) ? 100 : UC.noBid ;
+					Staff.Fmt last = layout.fmts.get(layout.fmts.size()-1);
+					return (g.vs.loc.y > last.dy + 12*H) ? 100 : UC.noBid ;
 				}
 			}
 
 			public void act(Stroke g) {
-				new Staff(g.vs.loc.y);
+        int dy;
+        if(layout.fmts.isEmpty()){        
+          dy = 0;
+        }else{
+          Staff.Fmt last = layout.fmts.get(layout.fmts.size()-1);
+          dy = g.ym()-last.dy;
+        }
+        new Staff.Fmt(layout, dy);
 			}
 			
 		});
@@ -45,18 +54,18 @@ public class Music1 extends Mass{
 		UC.bigVS.fill(g, Color.white);
 	}
 	
-	public static class Staff extends Mass{
+	public static class Staff1 extends Mass{
 		public static int[] LINES = {-4, -2, 0, 2, 4};
 		public int y;
 		public int[] lines = LINES;
 		
-		public Staff(int y2) {
+		public Staff1(int y2) {
 			y = y2;
 			staffs.add(this);
 			addReaction(new Reaction("S-S","add-bar"){
 				public int bid(Stroke g) {
-					if(g.yu() > Staff.this.yTop()) {return UC.noBid;}
-					if(g.yd() < Staff.this.yBottom()) {return UC.noBid;}
+					if(g.yu() > Staff1.this.yTop()) {return UC.noBid;}
+					if(g.yd() < Staff1.this.yBottom()) {return UC.noBid;}
 					// can do better
 					return 10;
 				}
@@ -75,7 +84,7 @@ public class Music1 extends Mass{
       addReaction(new Reaction("SW-SW","add-note"){
 				public int bid(Stroke g) {
           if(g.xm()< marX || g.xm() > MarX){return UC.noBid;}
-          if(g.ym()< Staff.this.yTop()-2*H || g.ym() > Staff.this.yBottom()+2*H){return UC.noBid;}
+          if(g.ym()< Staff1.this.yTop()-2*H || g.ym() > Staff1.this.yBottom()+2*H){return UC.noBid;}
           return 30;
 				}
 				public void act(Stroke g) {
@@ -108,15 +117,15 @@ public class Music1 extends Mass{
 				x = x1;
 				bars.add(this);
         addReaction(new Reaction("S-N", "deletes bar") {
-          public int bid(Stroke g) {return g.middleTopInBox(x-3*H, Staff.this.yTop(), x+(3*H), Staff.this.yBottom());}
+          public int bid(Stroke g) {return g.middleTopInBox(x-3*H, Staff1.this.yTop(), x+(3*H), Staff1.this.yBottom());}
           public void act(Stroke g) {delete();}
          });
         addReaction(new Reaction("E-E", "increment bar style") {
-          public int bid(Stroke g) {return g.flagStem(x, Staff.this.yBottom(), Staff.this.yTop());}
+          public int bid(Stroke g) {return g.flagStem(x, Staff1.this.yBottom(), Staff1.this.yTop());}
           public void act(Stroke g) {style = (style + 1) % 3;}
         });
         addReaction(new Reaction("DOT", "repeat bars") {
-          public int bid(Stroke g) {return g.middleTopInBox(x-2*H,Staff.this.yTop(),x+3*H, Staff.this.yBottom());}
+          public int bid(Stroke g) {return g.middleTopInBox(x-2*H,Staff1.this.yTop(),x+3*H, Staff1.this.yBottom());}
           public void act(Stroke g) {
             if(g.xm()<x){
               repeatLeft = !repeatLeft;
@@ -132,8 +141,8 @@ public class Music1 extends Mass{
 			
       @Override
 			public void show(Graphics g) {
-        int top = Staff.this.yTop(), bottom = Staff.this.yBottom();
-        int mid = Staff.this.y;
+        int top = Staff1.this.yTop(), bottom = Staff1.this.yBottom();
+        int mid = Staff1.this.y;
         g.setColor(Color.red);
         if(repeatLeft || repeatRight){
             g.fillRect(x-H/2, top, H, bottom-top);
@@ -170,15 +179,15 @@ public class Music1 extends Mass{
 				this.x = x;
 				bars.add(this);
         addReaction(new Reaction("E-E", "increment clef type") {
-          public int bid(Stroke g) {return g.flagStem(x, Staff.this.yBottom(), Staff.this.yTop());}
+          public int bid(Stroke g) {return g.flagStem(x, Staff1.this.yBottom(), Staff1.this.yTop());}
           public void act(Stroke g) {type = (type + 1) % clefNames.length;}
         });
          addReaction(new Reaction("W-W", "decrement clef type") {
-          public int bid(Stroke g) {return g.flagStem(x, Staff.this.yBottom(), Staff.this.yTop());}
+          public int bid(Stroke g) {return g.flagStem(x, Staff1.this.yBottom(), Staff1.this.yTop());}
           public void act(Stroke g) {type = (type - 1 + clefNames.length) % clefNames.length;}
          });
          addReaction(new Reaction("S-N", "deletes clef") {
-          public int bid(Stroke g) {return g.middleTopInBox(x-3*H, Staff.this.yTop(), x+(3*H), Staff.this.yBottom());}
+          public int bid(Stroke g) {return g.middleTopInBox(x-3*H, Staff1.this.yTop(), x+(3*H), Staff1.this.yBottom());}
           public void act(Stroke g) {delete();}
          });
 			}
@@ -191,7 +200,7 @@ public class Music1 extends Mass{
 				NamedInk ink = Stroke.shapes.nInkMap.get(clefNames[type]);
 				if(ink != null) {
 					tempBox.loc.x = x;
-					tempBox.loc.y = Staff.this.y;
+					tempBox.loc.y = Staff1.this.y;
 					ink.showAt(g, tempBox);
 				}
 			}
@@ -203,7 +212,7 @@ public class Music1 extends Mass{
       
       public Head(int x, int y){
         this.x = x;
-        this.line = (30*H+y-Staff.this.y+H/2)/H-30;
+        this.line = (30*H+y-Staff1.this.y+H/2)/H-30;
         System.out.println("Line is set to: "+line);
         bars.add(this);
       }
@@ -216,7 +225,7 @@ public class Music1 extends Mass{
       @Override
       public void show(Graphics g) {
         g.setColor(Color.black);
-        g.fillOval(x-3*H/2, Staff.this.y+line*H-H, 3*H, 2*H);
+        g.fillOval(x-3*H/2, Staff1.this.y+line*H-H, 3*H, 2*H);
       }
     }
     
