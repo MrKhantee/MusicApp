@@ -1,0 +1,101 @@
+MusicRepresentation
+
+Section
+  ArrayList<Voice> voices;
+  ArrayList<Bar> bars; // bars start at 0, measures start at 1, bars end measures. so bar 7 is end of measure 7
+
+Voice
+  Section section;
+  ArrayList<Measure> measures;
+
+Measure
+  Voice voice;
+  int nMeasure
+  ArrayList<Elt> elements; // Timed & unTimed elements
+
+Bar
+  int eShape; // bar, double, fine, repeat back, repeat fore, repeat both
+  Time.Group times; // times in the measure leading up to this bar line
+
+Elt - Something that lives in a Measure
+  getMeasure()
+  
+Time = vertical allignment
+  int dStart;
+  ArrayList<Head> heads;
+  boolean unTimed; // used for Clefs and other untimed symbols.
+  .Group
+    ArrayList<Time> times; // sorted by dStart
+    ArrayList<Tuplets> tuplets;
+  .Layout
+    int x;
+  .Tuplet - STUB
+  .UnTimed - interface
+    Measure getMeasure();
+    Time getPrev(); 
+    Time getNext(); untimed is between these times.
+  
+Beam implements Elt
+  ArrayList<Stem> stems;
+
+Stem - defines duration
+  Beam beam;
+  Time time;
+  ArrayList<Head> heads; // ordered from terminal head toward beamEnd.
+  int nFlag, nDot;
+  boolean rest;
+  int eHeadShape;
+  Tuplet tuplet; - multiplicative factor chain for duration.
+
+Head
+  Stem stem;
+  int cLine, raise
+
+Rest
+  Stem stem; // duration defined by stem
+
+Clef implements elt - hint for degree shift
+  int eShape  
+
+Key - 
+  int delta;
+
+Tie
+  static ArrayList<Tie> all; // ties are uncommon so look for them here.
+  Head h1,h2
+
+Tuplet
+  Stem stem;
+  int num, denom;
+
+Sys - Layout for some measures
+  int y;
+  ArrayList<Staff> staffs;
+  Sys.Layout layout;
+  .Layout
+    int x1, x2; // margins
+    ArrayList<Staff.Fmt> sFmts;
+    AList<Bracket> brackets; 
+
+Staff
+  Sys sys;
+  int m1, m2;
+  int nStaff;
+  .Fmt
+    ArrayList<Voice> voices; // only one or two currently allowed.
+    int dy, H; // dy from sys y.
+    int[] lines;
+    int[] tuning; // for tab
+    boolean tab, barContinues, divisi;
+
+Bracket
+  int nStaff1, nStaff2;
+  int eShape; //0 primary bracket, 1 secondary bracket, 2 brace
+    
+Instrument
+  String name;
+  String nick;
+  int transpose;
+  int defaultClef;
+
+  
