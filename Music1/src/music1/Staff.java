@@ -1,7 +1,7 @@
 /*
  * Copyright Amanda Eller 2015
  */
-package music1;
+package Music1;
 
 import InkApp.Layer;
 import InkApp.Reaction.Mass;

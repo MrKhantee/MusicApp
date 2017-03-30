@@ -28,6 +28,11 @@ public class Boxes extends Reaction.Mass{
 		g.setColor(Color.black);
 		g.drawString("BOXES", 100, 100);
 	}
+
+  @Override
+  public Layer getLayer() {
+    return Layer.BACK;
+  }
 	
 	public static class Box extends Reaction.Mass{
 		public boolean isOval = false;
@@ -47,6 +52,11 @@ public class Boxes extends Reaction.Mass{
 				g.drawOval(center.x-XS, center.y-YS, 2*XS, 2*YS);
 			}
 		}
+
+    @Override
+    public Layer getLayer() {
+      return Layer.BACK;
+    }
 	}
 	
 }

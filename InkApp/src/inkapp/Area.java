@@ -98,6 +98,7 @@ public class Area {
 				System.out.println(reaction.purpose);
 				Undo.add(g);
 				reaction.act(g);
+        Reaction.Oto.clearAll();
 			}		
 //			System.out.println("**" + Undo.UNDO.list.size());
 //			g.act(g);

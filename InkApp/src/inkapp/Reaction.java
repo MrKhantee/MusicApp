@@ -1,5 +1,8 @@
 package InkApp;
 
+import GraphicsLib.G;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,9 +81,7 @@ public abstract class Reaction implements I.React{
 	public static abstract class Mass extends Reaction.List implements I.Show{
 		public static Mass DEFAULT = null;
 		
-		public Layer getLayer() {
-			return Layer.BACK;
-		}
+		public abstract Layer getLayer();
 		
 		@Override
 		public void clear() {
@@ -118,4 +119,54 @@ public abstract class Reaction implements I.React{
 			}
 		}
 	}
+  
+  public static class Oto extends Mass{
+    public String btnName;
+    public G.VS box;
+    public static ArrayList<Oto> all = new ArrayList<>();
+    
+    public Oto(String btnName, int x, int y, Oto.Action oa){
+      this.btnName = btnName;
+      this.box = new G.VS(new G.V(x, y), new G.V(1,1));
+      addReaction(new Reaction("DOT", "Oto action") {
+
+        public int bid(Stroke g) {
+          if(box.contains(g.xm(), g.ym())){
+            return 10;
+          }else{return UC.noBid;}
+        }
+        public void act(Stroke g) {
+         oa.execute();
+        }
+      });
+      all.add(this);
+      getLayer().add(this);
+    }
+    
+    public static void clearAll() {
+      for(Oto o:all){
+        o.delete();
+      }
+    }
+    
+    @Override
+    public void show(Graphics g) {
+      g.setFont(new Font("Comic Sans", Font.BOLD, 14));
+      int s = g.getFont().getSize();
+      int w = g.getFontMetrics().stringWidth(btnName);
+      int h = g.getFontMetrics().getHeight();
+      int a = g.getFontMetrics().getAscent();
+      box.size = new G.V(w,h);
+      box.fill(g, UC.otoBackColor);
+      g.setColor(UC.otoTextColor);
+      g.drawString(btnName, box.loc.x, box.loc.y+a);
+    }
+
+    @Override
+    public Layer getLayer() {
+      return Layer.FORE;
+    }
+
+    public static abstract class Action { public abstract void execute();}
+  }
 }

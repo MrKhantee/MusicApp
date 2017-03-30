@@ -31,9 +31,18 @@ public class UC {
             shapeDBFilePath = "/Users/Amanda/Documents/B_Binder/DadJava/MusicApp/InkApp/shapeDB.dat";
 	
 	public static final Color inkColor = Color.black,
-              prototypeInkColor = Color.red;
+              prototypeInkColor = Color.red,
+              areaSky = new Color(174, 196, 232),
+              areaRed = new Color(229, 162, 162),
+              areaGreen = new Color(175, 229, 162),
+              areaPurple = new Color(186, 162, 229),
+              areaTan = new Color(229, 204, 162),
+              otoBackColor = areaSky,
+              otoTextColor = Color.black;
+              
 	
 	public static final VS bigVS = new VS(new V(0,0), new V(2000, 2000));
 
 	public static VS namedInkTargetVS = new VS(new V(300,300), new V(namedInkScale, namedInkScale));
+  
 }

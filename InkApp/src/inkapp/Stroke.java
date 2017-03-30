@@ -17,6 +17,7 @@ import InkApp.Stroke.Shape.DB;
 import InkApp.Ink.Blend;
 import InkApp.Ink.NamedInk;
 import InkApp.Ink.Norm;
+import InkApp.Reaction.Oto;
 
 public class Stroke implements I.Act{
 	public Shape shape;
@@ -190,6 +191,7 @@ public class Stroke implements I.Act{
 		if(reaction != null) {
 			System.out.println(reaction.purpose);
 			reaction.act(g);
+      Oto.clearAll();
 		}		
 	}
 }

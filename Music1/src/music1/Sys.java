@@ -1,7 +1,7 @@
 /*
  * Copyright Amanda Eller 2015
  */
-package music1;
+package Music1;
 
 import java.util.ArrayList;
 
