@@ -1,13 +1,15 @@
 package Music1;
 import InkApp.*;
 import GraphicsLib.Window;
+import InkApp.Reaction.Button;
 import InkApp.Reaction.Mass;
 import InkApp.Reaction.Oto;
-import InkApp.Reaction.Oto.Action;
+import Music1.Sys.Layout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 public class MusicApp extends Window{
 	    public static final int W = UC.initialWindowWidth,  
@@ -17,28 +19,16 @@ public class MusicApp extends Window{
 //	    public static G.VS BACKGROUND = new VS(new V(), new V(W,H)); 
 //	    public static VS nb = new VS(new BBox(GBL,GBS));
 	 //   public static InkList inkList = null;
-	 //   public static Music1 music1 = new Music1();
+	  //  public static Music1 music1 = new Music1();
 	  //  public static Layer layer =  Layer.getNewLayer();
-      //public static Demo dem = new Demo(40,40);
+      public static Layer staffs = Layer.getNewLayer();
+      public static Layer bars = Layer.getNewLayer();
+      public static Menu menu = new Menu(40,40);
+      public static Layout theLayout = new Layout(50, 750, 8);
+     
 	     
 	    public MusicApp() {
 	      super("Music App", W, H);
-        new Oto("Train Shapes", 100,100, new Action(){
-          public void execute(){
-            Trainer.trainShapes("NE-SE");
-          }
-        });
-        new Oto("Train Named Shapes", 200,100, new Action(){
-          public void execute(){
-           Trainer.trainNamedInk("df1");
-          }
-        });
-        new Oto("Define System", 100,150, new Action(){
-          public void execute(){
-          new Demo(300,300); 
-          //TODO LayoutEditor more Robust!!
-          }
-        });
 	    }
 	    
 	    protected void paintComponent(Graphics g){
@@ -81,32 +71,34 @@ public class MusicApp extends Window{
 	      launch();
 	    }
 	   
-	    public static class Demo extends Mass{
-        public int x, y;
+	    public static class Menu extends Button{
+        public ArrayList<Oto> menuOtos = new ArrayList<>();
         
-        public Demo(int x, int y){
+        public Menu(int x, int y){
+          super("Menu", x, y);
           Mass.DEFAULT = this;
-          this.x = x; this.y = y;
-          getLayer().add(this);
-          addReaction(new Reaction("E-E","show dude") {
-            public int bid(Stroke g) {
-              return 50; 
-            }
-            public void act(Stroke g) {
-                new Demo(g.xm(),g.ym());
+          menuOtos.add(new Oto("Train Shapes", 100,100){
+            public void execute(){Trainer.trainShapes("NE-SE");}
+          });
+          menuOtos.add(new Oto("Train Named Shapes", 200,100){
+            public void execute(){Trainer.trainNamedInk("df1");
             }
           });
+          menuOtos.add(new Oto("Define System", 100,150){
+            public void execute(){ 
+            theLayout.new SysEd(100);
+            }
+          });
+          for(Oto o: menuOtos){
+            o.disable();
+          }
         }
 
         @Override
-        public Layer getLayer() {
-          return Layer.BACK;
-        }
-
-        @Override
-        public void show(Graphics g) {
-          g.setColor(Color.black);
-          g.drawString("DUDE!!", x, y);
+        public void execute() {
+          for(Oto o: menuOtos){
+            o.enable();
+          }
         }
       }
       

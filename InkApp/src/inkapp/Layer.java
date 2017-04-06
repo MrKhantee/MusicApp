@@ -39,7 +39,7 @@ public class Layer extends ArrayList<I.Show> implements I.Show{
 		
 		@Override
 		public void show(Graphics g) {
-			System.out.println(BACK.size());
+			//System.out.println(BACK.size());
 			for (I.Show s : this) {
 				s.show(g);
 				

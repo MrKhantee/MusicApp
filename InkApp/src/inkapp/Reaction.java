@@ -1,6 +1,7 @@
 package InkApp;
 
 import GraphicsLib.G;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.ArrayList;
@@ -109,6 +110,18 @@ public abstract class Reaction implements I.React{
 			clear();
 		}
 		
+    public void enable(){
+      if(!getLayer().contains(this)){
+        getLayer().add(this);
+      }
+      super.enable();
+    }
+    
+    public void disable(){
+      getLayer().remove(this);
+      super.disable();
+    }
+    
 		//this is called by Undo
 		public static void resetToDefault() {
 			Reaction.clearMap();
@@ -120,46 +133,62 @@ public abstract class Reaction implements I.React{
 		}
 	}
   
-  public static class Oto extends Mass{
-    public String btnName;
-    public G.VS box;
+  public static abstract class Oto extends Button{
     public static ArrayList<Oto> all = new ArrayList<>();
     
-    public Oto(String btnName, int x, int y, Oto.Action oa){
+    public Oto(String btnName, int x, int y){
+      super(btnName, x, y);
+      all.add(this);
+    }
+    
+    public static void clearAll() {
+      for(Oto o:all){
+        //o.delete();
+        o.disable();
+      }
+    }
+    
+    @Override
+    public void show(Graphics g) {
+        showInColor(g, UC.otoBackColor, UC.otoTextColor);
+    }
+  }
+  
+   public static abstract class Button extends Mass{
+    public String btnName;
+    public G.VS box;
+    
+    public Button(String btnName, int x, int y){
       this.btnName = btnName;
       this.box = new G.VS(new G.V(x, y), new G.V(1,1));
-      addReaction(new Reaction("DOT", "Oto action") {
-
+      addReaction(new Reaction("DOT", "Button action") {
         public int bid(Stroke g) {
           if(box.contains(g.xm(), g.ym())){
             return 10;
           }else{return UC.noBid;}
         }
         public void act(Stroke g) {
-         oa.execute();
+         execute();
         }
       });
-      all.add(this);
       getLayer().add(this);
     }
     
-    public static void clearAll() {
-      for(Oto o:all){
-        o.delete();
-      }
-    }
-    
-    @Override
-    public void show(Graphics g) {
+    public void showInColor(Graphics g, Color bk, Color fg) {
       g.setFont(new Font("Comic Sans", Font.BOLD, 14));
       int s = g.getFont().getSize();
       int w = g.getFontMetrics().stringWidth(btnName);
       int h = g.getFontMetrics().getHeight();
       int a = g.getFontMetrics().getAscent();
       box.size = new G.V(w,h);
-      box.fill(g, UC.otoBackColor);
-      g.setColor(UC.otoTextColor);
+      box.fill(g,bk);
+      g.setColor(fg);
       g.drawString(btnName, box.loc.x, box.loc.y+a);
+    }
+    
+    @Override
+    public void show(Graphics g){
+      showInColor(g, UC.btnBackColor, UC.btnTextColor);
     }
 
     @Override
@@ -167,6 +196,7 @@ public abstract class Reaction implements I.React{
       return Layer.FORE;
     }
 
-    public static abstract class Action { public abstract void execute();}
+    public abstract void execute();
   }
+  
 }

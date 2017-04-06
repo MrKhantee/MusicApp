@@ -22,11 +22,11 @@ public class Staff extends Mass{
     this.sys = sys;
     this.nStaff = nStaff;
     this.fmt = getFmt();
-    Music1.staffs.add(this);
+    MusicApp.staffs.add(this);
   }
   
   @Override
-  public Layer getLayer(){return Music1.staffs;}
+  public Layer getLayer(){return MusicApp.staffs;}
   
   public Fmt getFmt(){return sys.layout.fmts.get(nStaff);}
   
@@ -47,9 +47,6 @@ public class Staff extends Mass{
   public int yBottom() {
     return lineY(fmt.lines[fmt.lines.length-1]);
   }
-
-  
-  
   
   public static class Fmt{
     public static int[] MUSIC_STAFF = {0,2,4,6,8};
@@ -57,13 +54,15 @@ public class Staff extends Mass{
     public static int[] PERCUSSION_STAFF = {0};
     public static int[] STANDARD_TUNE = {0,1,2,3,4,5};
     
-    public ArrayList<Voice> voices; // only one or two currently allowed.
+   // public ArrayList<Voice> voices; // only one or two currently allowed.
     public int dy, H; // dy from sys y.
     public int[] lines;
     public int[] tuning; // for tab
     public boolean tab, barContinues, divisi;
+    public Sys.Layout layout;
     
     public Fmt(Sys.Layout layout, int dy){
+      this.layout = layout;
       this.H = layout.defaultH;
       this.dy = dy;
       this.lines = MUSIC_STAFF;
@@ -77,10 +76,15 @@ public class Staff extends Mass{
     public Staff getNewStaff(Sys sys, int nStaff) {
       return new Staff(sys, nStaff);
     }
-    
-    
-    
-    
+
+    void showAt(Graphics g, int y) {
+      g.setColor(Color.BLACK);
+      for(int i= 0; i< lines.length; i++) {
+				int yVal = lines[i] * H + y + dy;
+				g.drawLine(layout.x1, yVal, layout.x2, yVal);
+			}
+    }
+
   }
   
 }

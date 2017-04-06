@@ -34,6 +34,7 @@ public class Stroke implements I.Act{
 			shape = Shape.DOT;
 		} else {
 			shape = shapes.getBestMatch(Ink.BUFFER.norm);
+      System.out.println(shape == null? "Null" : shape.name);
 		}
 		vs = new VS(Ink.BUFFER.bbox);
 	}
@@ -190,8 +191,8 @@ public class Stroke implements I.Act{
 		Reaction reaction = Reaction.bestReaction(g);
 		if(reaction != null) {
 			System.out.println(reaction.purpose);
-			reaction.act(g);
-      Oto.clearAll();
+			Oto.clearAll();
+      reaction.act(g);
 		}		
 	}
 }

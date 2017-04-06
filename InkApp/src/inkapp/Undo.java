@@ -28,10 +28,10 @@ public class Undo {
 		UNDO.list.remove(last()); // remove the undo stroke itself
 		if(!UNDO.list.isEmpty()) {
 			UNDO.list.remove(last());
-			Area.resetToDefault();
-			Reaction.Mass.resetToDefault();
-			INITIAL_REACTIONS.enable();
 		}
+    Area.resetToDefault();
+		Reaction.Mass.resetToDefault();
+		INITIAL_REACTIONS.enable();
 		for(I.Act a: UNDO.list) {
 			if(a instanceof Stroke) {
 			//	System.out.println("redoing :" + ((Stroke)a).shape.name);

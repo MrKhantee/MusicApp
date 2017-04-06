@@ -1,3 +1,10 @@
-Music1.MusicApp$InkArea
+Music1.MusicApp$Menu$1
+Music1.MusicApp$Demo$1
+Music1.MusicApp$Menu$2
+Music1.MusicApp$Menu
+Music1.MusicApp$1
+Music1.MusicApp$Menu$3
+Music1.MusicApp$2
+Music1.MusicApp$3
 Music1.MusicApp
-Music1.MusicApp$InkList
+Music1.MusicApp$Demo

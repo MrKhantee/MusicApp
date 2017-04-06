@@ -38,7 +38,9 @@ public class UC {
               areaPurple = new Color(186, 162, 229),
               areaTan = new Color(229, 204, 162),
               otoBackColor = areaSky,
-              otoTextColor = Color.black;
+              otoTextColor = inkColor,
+              btnBackColor = areaGreen,
+              btnTextColor = inkColor;
               
 	
 	public static final VS bigVS = new VS(new V(0,0), new V(2000, 2000));
