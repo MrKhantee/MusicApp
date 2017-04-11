@@ -81,9 +81,13 @@ public abstract class Reaction implements I.React{
 	
 	public static abstract class Mass extends Reaction.List implements I.Show{
 		public static Mass DEFAULT = null;
+    public Layer layer;
 		
-		public abstract Layer getLayer();
-		
+    public Mass(Layer layer){
+      this.layer = layer;
+      layer.add(this);
+    }
+    
 		@Override
 		public void clear() {
 			this.disable();
@@ -106,19 +110,19 @@ public abstract class Reaction implements I.React{
 		}
 		
 		public void delete() {
-			getLayer().remove(this);
+			layer.remove(this);
 			clear();
 		}
 		
     public void enable(){
-      if(!getLayer().contains(this)){
-        getLayer().add(this);
+      if(!layer.contains(this)){
+        layer.add(this);
       }
       super.enable();
     }
     
     public void disable(){
-      getLayer().remove(this);
+      layer.remove(this);
       super.disable();
     }
     
@@ -127,7 +131,7 @@ public abstract class Reaction implements I.React{
 			Reaction.clearMap();
 			Layer.clearAll();
 			if(DEFAULT != null) {
-				DEFAULT.getLayer().add(DEFAULT);
+				DEFAULT.layer.add(DEFAULT);
 				DEFAULT.enable();
 			}
 		}
@@ -159,6 +163,7 @@ public abstract class Reaction implements I.React{
     public G.VS box;
     
     public Button(String btnName, int x, int y){
+      super(Layer.FORE);
       this.btnName = btnName;
       this.box = new G.VS(new G.V(x, y), new G.V(1,1));
       addReaction(new Reaction("DOT", "Button action") {
@@ -171,7 +176,6 @@ public abstract class Reaction implements I.React{
          execute();
         }
       });
-      getLayer().add(this);
     }
     
     public void showInColor(Graphics g, Color bk, Color fg) {
@@ -189,11 +193,6 @@ public abstract class Reaction implements I.React{
     @Override
     public void show(Graphics g){
       showInColor(g, UC.btnBackColor, UC.btnTextColor);
-    }
-
-    @Override
-    public Layer getLayer() {
-      return Layer.FORE;
     }
 
     public abstract void execute();

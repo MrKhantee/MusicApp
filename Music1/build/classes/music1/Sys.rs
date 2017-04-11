@@ -8,3 +8,4 @@ Music1.Sys$Layout$SysEd$2
 Music1.Sys$Layout$SysEd$1
 Music1.Sys$Layout
 Music1.Sys$Layout$Bracket
+Music1.Sys$Layout$SysEd$3

@@ -16,9 +16,9 @@ public class Boxes extends Reaction.Mass{
 	};
 	
 	public Boxes() {
+    super(Layer.BACK);
 		this.add(box);
 		Reaction.Mass.DEFAULT = this;
-		Layer.BACK.add(this);
 		addReaction(box);
 	}
 	
@@ -29,18 +29,15 @@ public class Boxes extends Reaction.Mass{
 		g.drawString("BOXES", 100, 100);
 	}
 
-  @Override
-  public Layer getLayer() {
-    return Layer.BACK;
-  }
 	
 	public static class Box extends Reaction.Mass{
 		public boolean isOval = false;
 		public V center;
+    
 		public Box(boolean b, int x, int y) {
+      super(Layer.BACK);
 			isOval = b;
 			center = new V(x, y);
-			getLayer().add(this);
 		}
 		
 		@Override
@@ -52,11 +49,6 @@ public class Boxes extends Reaction.Mass{
 				g.drawOval(center.x-XS, center.y-YS, 2*XS, 2*YS);
 			}
 		}
-
-    @Override
-    public Layer getLayer() {
-      return Layer.BACK;
-    }
 	}
 	
 }

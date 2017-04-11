@@ -3,11 +3,9 @@
  */
 package Music1;
 
-import InkApp.Layer;
 import InkApp.Reaction.Mass;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
 
 /**
  *
@@ -19,14 +17,11 @@ public class Staff extends Mass{
   public Fmt fmt; 
   
   public Staff(Sys sys, int nStaff){
+    super(MusicApp.staffs);
     this.sys = sys;
     this.nStaff = nStaff;
     this.fmt = getFmt();
-    MusicApp.staffs.add(this);
   }
-  
-  @Override
-  public Layer getLayer(){return MusicApp.staffs;}
   
   public Fmt getFmt(){return sys.layout.fmts.get(nStaff);}
   
@@ -83,6 +78,10 @@ public class Staff extends Mass{
 				int yVal = lines[i] * H + y + dy;
 				g.drawLine(layout.x1, yVal, layout.x2, yVal);
 			}
+    }
+    
+    public int dyLastLine(){
+      return dy+lines[lines.length-1]*H;
     }
 
   }
