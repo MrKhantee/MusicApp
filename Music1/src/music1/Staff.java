@@ -3,6 +3,8 @@
  */
 package Music1;
 
+import GraphicsLib.G.V;
+import GraphicsLib.G.VS;
 import InkApp.Reaction.Mass;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -25,22 +27,22 @@ public class Staff extends Mass{
   
   public Fmt getFmt(){return sys.layout.fmts.get(nStaff);}
   
-  public int lineY(int line){return sys.y + fmt.dy + line*fmt.H;}
+  public int yOfLine(int line){return sys.y + fmt.dy + line*fmt.H;}
   
   @Override
   public void show(Graphics g) {
     g.setColor(Color.gray);
     for(int i= 0; i< fmt.lines.length; i++) {
-      g.drawLine(sys.layout.x1, lineY(i), sys.layout.x2, lineY(i));
+      g.drawLine(sys.layout.x1, yOfLine(i), sys.layout.x2, yOfLine(i));
     }
   }
 
   public int yTop() {
-    return lineY(fmt.lines[0]);
+    return yOfLine(fmt.lines[0]);
   }
 
   public int yBottom() {
-    return lineY(fmt.lines[fmt.lines.length-1]);
+    return yOfLine(fmt.lines[fmt.lines.length-1]);
   }
   
   public static class Fmt{
@@ -55,6 +57,9 @@ public class Staff extends Mass{
     public int[] tuning; // for tab
     public boolean tab, barContinues, divisi;
     public Sys.Layout layout;
+    public int nStaff;
+    public int defaultClefEShape = 0;
+    public VS clefBox;
     
     public Fmt(Sys.Layout layout, int dy){
       this.layout = layout;
@@ -65,6 +70,8 @@ public class Staff extends Mass{
       tab = false;
       barContinues = false;
       divisi = false;
+      nStaff = layout.fmts.size();
+      clefBox = new VS(new V(layout.x1 + 2*H, dy-4*H), new V(H,H));
       layout.fmts.add(this);
     }
 
@@ -82,6 +89,12 @@ public class Staff extends Mass{
     
     public int dyLastLine(){
       return dy+lines[lines.length-1]*H;
+    }
+
+    public void cycleLines() {
+      if(lines == MUSIC_STAFF){lines = GUITAR_TAB;}
+      else if(lines == GUITAR_TAB){lines = PERCUSSION_STAFF;}
+      else if(lines == PERCUSSION_STAFF){lines = MUSIC_STAFF;}
     }
 
   }

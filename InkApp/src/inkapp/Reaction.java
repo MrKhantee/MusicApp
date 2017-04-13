@@ -16,7 +16,7 @@ public abstract class Reaction implements I.React{
 	public Reaction(String name, String purp) {
 		this.purpose = purp;
 		this.shape = Stroke.Shape.byName(name);
-		enable();
+		//enable();
 	}
 	
 	public void enable() {

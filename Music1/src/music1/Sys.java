@@ -3,6 +3,7 @@
  */
 package Music1;
 
+import InkApp.Ink.NamedInk;
 import InkApp.Reaction;
 import InkApp.Reaction.Button;
 import InkApp.Reaction.Mass;
@@ -12,6 +13,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import music1.Bar;
+import music1.Clef;
 
 /**
  *
@@ -84,19 +86,27 @@ public class Sys extends Mass {
       return y + last.dy + lastStaffLine + 5 * defaultH;
     }
 
-    private boolean alreadyBracketed(int nStaff) {
-     boolean res = false;
-     for(Bracket b:brackets){
-       if(b.contains(nStaff)){
-        res = true;
-       }
-     }
-     return res;
+    public Staff.Fmt getFmtBeforeDy(int dy) {
+      Staff.Fmt res = null;
+      for (Staff.Fmt f : fmts) {
+        if (f.dy < dy) {
+          res = f;
+        }
+      }
+      return res;
     }
     
-
+    public Bracket findBracket(int nStaff){
+      Bracket res = null;
+      for(Bracket b: brackets){
+        if(b.contains(nStaff)){
+          res = b;
+        }
+      }
+      return res;
+    }
+    
     public class SysEd extends Mass {
-
       public int y;
       public Button exit;
       //public ArrayList<Clef> clefs;
@@ -114,35 +124,73 @@ public class Sys extends Mass {
           public int bid(Stroke g) {
             return (g.vs.loc.y > guideline(y)) ? 100 : UC.noBid;
           }
-
           public void act(Stroke g) {
             new Staff.Fmt(Layout.this, g.ym() - y);
           }
         });
+        addReaction(new Reaction("E-E", "cycle-staffs") {
+          public int bid(Stroke g) {
+            if(g.xl() < 100){return UC.noBid;}
+            return (g.vs.loc.y < guideline(y)) ? 100: UC.noBid;
+          }
+          public void act(Stroke g) {
+            Staff.Fmt s = getFmtBeforeDy(g.yu()-y);
+            if(s == null){s = fmts.get(0);}
+            if(s == null){return;}
+            s.cycleLines();
+          }
+        });
+        addReaction(new Reaction("E-E", "cycle-clefs") {
+          public int bid(Stroke g) {
+            if(g.xm() > x1+50){return UC.noBid;}
+            return (g.vs.loc.y < guideline(y)) ? 100: UC.noBid;
+          }
+          public void act(Stroke g) {
+            Staff.Fmt s = getFmtBeforeDy(g.yu()-y);
+            if(s == null){s = fmts.get(0);}
+            if(s == null){return;}
+            s.defaultClefEShape = Clef.cycle(s.defaultClefEShape);
+          }
+        });
         addReaction(new Reaction("S-S", "add-brackets to the sys-layout") {
           public int bid(Stroke g) {
-            if(g.xm() > x1){return UC.noBid;}
-            if(fmts.size() < 2){return UC.noBid;}
+            if (g.xm() > x1) {return UC.noBid;}
+            if (fmts.size() < 2) {return UC.noBid;}
             return 50;
           }
 
           public void act(Stroke g) {
-            Bracket.newBracket(Layout.this, g.yu()-y, g.yd()-y);
+            Bracket.newBracket(Layout.this, g.yu() - y, g.yd() - y);
           }
         });
         addReaction(new Reaction("SW-SE", "add-braces to the sys-layout") {
           public int bid(Stroke g) {
-            if(g.xm() > x1){return UC.noBid;}
-            if(fmts.size() < 2){return UC.noBid;}
+            if (g.xm() > x1) {return UC.noBid;}
+            if (fmts.size() < 2) {return UC.noBid;}
             return 50;
           }
 
           public void act(Stroke g) {
-            Bracket.newBrace(Layout.this, g.yu()-y, g.yd()-y);
+            Bracket.newBrace(Layout.this, g.ym() - y);
+          }
+        });
+        addReaction(new Reaction("S-S", "adding a Bar continues to the sys-layout") {
+          public int bid(Stroke g) {
+            if (g.xm() < x1) {return UC.noBid;}
+            if (fmts.size() < 2) {return UC.noBid;}
+            Staff.Fmt s = getFmtBeforeDy(g.yu()-y);
+            if(s == null){s = fmts.get(0);}
+            if(s.nStaff == fmts.size()-1){return UC.noBid;}
+            return Math.abs(s.dyLastLine()+y - g.yu()) + Math.abs(fmts.get(s.nStaff+1).dy+y - g.yd());
+          }
+
+          public void act(Stroke g) {
+            Staff.Fmt s = getFmtBeforeDy(g.yu()-y);
+            if(s == null){s = fmts.get(0);}
+            s.barContinues = !s.barContinues;
           }
         });
         //toggle bar connection S-S
-        //add brace SW-SE
         //cycle lines and clefs E-E
       }
 
@@ -151,14 +199,24 @@ public class Sys extends Mass {
         g.setColor(Color.BLUE);
         g.drawLine(x1 + 100, guideline(y), x2 - 100, guideline(y));
         showAt(g, y);
-
-        //clef
-        //bar lines 
+        int x = 350;
+        for(Staff.Fmt f:fmts){
+          g.drawLine(x, f.dy+y, x, f.dyLastLine()+y);
+          if(f.barContinues){
+            g.drawLine(x, f.dyLastLine()+y, x, fmts.get(f.nStaff+1).dy +y);
+          }
+          if(f.lines == Staff.Fmt.MUSIC_STAFF){
+            NamedInk ink = Clef.getNamedInk(f.defaultClefEShape);
+            if(ink != null) {
+              f.clefBox.loc.y = f.dy+y+4*defaultH;
+              ink.showAt(g, f.clefBox);
+            }
+          }
+        }
       }
     }
 
     public static class Bracket {
-
       public int nStaff1, nStaff2;
       public int eShape; // 0 = brace, 1 = primary bracket, 2 = secondary bracket
       public Layout layout;
@@ -172,24 +230,37 @@ public class Sys extends Mass {
       }
 
       public static void newBracket(Layout layout, int dyHi, int dyLo) {
-        int staff1 = getNStaff1(layout, dyHi);
-        int staff2 = getNStaff2(layout, dyLo);
-        if(staff1 >= 0  && staff2 >= 0 && staff1 != staff2){
-          if(layout.alreadyBracketed(staff1)){
+        Staff.Fmt s1 = layout.getFmtBeforeDy(dyHi);
+        Staff.Fmt s2 = layout.getFmtBeforeDy(dyLo);
+        if (s2 == null) {return;}
+        int staff1 = (s1 == null) ? 0 : s1.nStaff + 1;
+        int staff2 = s2.nStaff;
+        if (staff1 >= 0 && staff2 >= 0 && staff1 != staff2) {
+          Bracket b = layout.findBracket(staff1);
+          if (b != null) {
             new Bracket(layout, 2, staff1, staff2);
           }
           new Bracket(layout, 1, staff1, staff2);
         }
       }
-      
-      public static void newBrace(Layout layout, int dyHi, int dyLo) {
-        int staff1 = getNStaff1(layout, dyHi);
-        int staff2 = getNStaff2(layout, dyLo);
-        if(staff1 >= 0  && staff2 >= 0 && staff1 != staff2){
-          new Bracket(layout, 0, staff1, staff2);
+
+      public static void newBrace(Layout layout, int dy) {
+        Staff.Fmt s1 = layout.getFmtBeforeDy(dy);
+        if (s1 == null) {return;}
+        int staff1 = s1.nStaff;
+        if (staff1 >= 0 && staff1 < layout.fmts.size() - 1) {
+          Bracket b = layout.findBracket(staff1);
+          Bracket b2 = layout.findBracket(staff1 +1);
+          if(b2 != null){return;}
+          if(b != null){
+            b.nStaff2++;
+            System.out.println("eShape of extending bracket " +b.eShape);
+          }else{
+            new Bracket(layout, 0, staff1, staff1 + 1);
+          }
         }
       }
-      
+
       public void showAt(Graphics g, int y) {
         g.setColor(UC.inkColor);
         if (eShape == 0) {
@@ -199,55 +270,31 @@ public class Sys extends Mass {
         }
       }
 
-      private static int getNStaff1(Layout layout, int dyHi) { //move to layout class same with getnstaff2
-        int res = -1;
-        for (int i = layout.fmts.size() - 1; i >= 0; i--) {
-          if (layout.fmts.get(i).dy > dyHi) {
-            res = i;
-          }
-        }
-        return res;
-      }
-
-      private static int getNStaff2(Layout layout, int dyLo) {
-        int res = -1;
-        for (int i = 0; i < layout.fmts.size(); i++) {
-          if (layout.fmts.get(i).dy < dyLo) {
-            res = i;
-          }
-        }
-        return res;
-      }
-
       private void showBraceAt(Graphics g, int y) {
         int y1 = layout.fmts.get(nStaff1).dy + y;
-        int y2 = layout.fmts.get(nStaff2).dyLastLine()+y;
-        int ym = (y1+y2)/2;
+        int y2 = layout.fmts.get(nStaff2).dyLastLine() + y;
+        int ym = (y1 + y2) / 2;
         int x = layout.x1;
         int h = layout.defaultH;
-        Bar.drawWings(g, x-3*h, y1+h, y2-h, 2*h, h); // /
-        Bar.drawWings(g, x-2*h, ym-h, ym+h, -h, ym-y1-2*h); // \
-        Bar.drawWings(g, x-4*h, ym, ym, 2*h, h);// <
-        
+        Bar.drawWings(g, x - 3 * h, y1 + h, y2 - h, 2 * h, h); // /
+        Bar.drawWings(g, x - 2 * h, ym - h, ym + h, -h, ym - y1 - 2 * h); // \
+        Bar.drawWings(g, x - 4 * h, ym, ym, 2 * h, h);// < 
       }
 
       private void showBracketAt(Graphics g, int y) {
         int y1 = layout.fmts.get(nStaff1).dy + y;
-        int y2 = layout.fmts.get(nStaff2).dyLastLine()+y;
+        int y2 = layout.fmts.get(nStaff2).dyLastLine() + y;
         int x = layout.x1;
         int h = layout.defaultH;
-        g.fillRect(x - 2 * h, y1, h, y2 - y1);
-        Bar.drawWings(g, x-h, y1, y2, 2*h, h);
+        g.fillRect(x - 2 * h, y1, h, y2 - y1 + 1);
+        Bar.drawWings(g, x - h, y1, y2, 2 * h, h);
         if (eShape == 2) {
           g.drawLine(x - 3 * h, y1, x - 3 * h, y2);
-          Bar.drawWings(g, x-3*h, y1, y2, h, 0);
+          Bar.drawWings(g, x - 3 * h, y1, y2, h, 0);
         }
       }
 
-      private boolean contains(int nStaff) {
-       return nStaff >= nStaff1 && nStaff <= nStaff2;
-       //TODO possible bug draws 2nd brackets when there is a brace 
-      }
+      private boolean contains(int nStaff) {return nStaff >= nStaff1 && nStaff <= nStaff2;}
     }
 
   }
