@@ -103,7 +103,7 @@ public class Stroke implements I.Act{
 		}
 		
 		public static void saveDB() {
-			try {
+      try {
 		        FileOutputStream fout = new FileOutputStream(FNAME);
 		        ObjectOutputStream oout = new ObjectOutputStream(fout);
 		        oout.writeObject(shapes);
@@ -112,7 +112,7 @@ public class Stroke implements I.Act{
 		        }catch(Exception e) {
 		          System.out.println("WTF? Saving file: "+ FNAME);
 		          e.printStackTrace();
-		        }   
+		        }  
 		}
 		
 		public int dist(Ink.Norm n) {

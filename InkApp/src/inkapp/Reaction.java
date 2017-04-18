@@ -1,6 +1,7 @@
 package InkApp;
 
 import GraphicsLib.G;
+import GraphicsLib.Window;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -161,11 +162,19 @@ public abstract class Reaction implements I.React{
    public static abstract class Button extends Mass{
     public String btnName;
     public G.VS box;
+    public int w = 1, h = 1, a;
+    
     
     public Button(String btnName, int x, int y){
       super(Layer.FORE);
       this.btnName = btnName;
-      this.box = new G.VS(new G.V(x, y), new G.V(1,1));
+      if(Window.PANEL != null){
+        Graphics g = Window.PANEL.getGraphics();
+        w = g.getFontMetrics().stringWidth(btnName);
+        h = g.getFontMetrics().getHeight();
+        a = g.getFontMetrics().getAscent();
+      }
+      this.box = new G.VS(new G.V(x, y), new G.V(w,h));
       addReaction(new Reaction("DOT", "Button action") {
         public int bid(Stroke g) {
           if(box.contains(g.xm(), g.ym())){
@@ -181,10 +190,12 @@ public abstract class Reaction implements I.React{
     public void showInColor(Graphics g, Color bk, Color fg) {
       g.setFont(new Font("Comic Sans", Font.BOLD, 14));
       int s = g.getFont().getSize();
-      int w = g.getFontMetrics().stringWidth(btnName);
-      int h = g.getFontMetrics().getHeight();
-      int a = g.getFontMetrics().getAscent();
-      box.size = new G.V(w,h);
+      if(Window.PANEL != null){ //patch to fix buttons contructed before PANEL exsists. 
+        w = g.getFontMetrics().stringWidth(btnName);
+        h = g.getFontMetrics().getHeight();
+        a = g.getFontMetrics().getAscent();
+        box.size = new G.V(w,h);
+      }
       box.fill(g,bk);
       g.setColor(fg);
       g.drawString(btnName, box.loc.x, box.loc.y+a);

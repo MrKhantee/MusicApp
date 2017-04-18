@@ -14,6 +14,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import music1.Bar;
 import music1.Clef;
+import music1.Page;
 
 /**
  *
@@ -24,18 +25,19 @@ public class Sys extends Mass {
   public int y;
   public ArrayList<Staff> staffs;
   public Sys.Layout layout;
-  public int m1, m2;
 
-  public Sys(Layout layout, int y, int m1, int m2) {
+  public Sys(Layout layout, int y) {
     super(MusicApp.staffs);
     this.layout = layout;
     this.y = y;
-    this.m1 = m1;
-    this.m2 = m2;
     this.staffs = new ArrayList<>();
     for (int i = 0; i < layout.fmts.size(); i++) {
       staffs.add(layout.fmts.get(i).getNewStaff(this, i));
     }
+  }
+  
+  public int yBot(){
+    return layout.guideline(y);
   }
 
   @Override
@@ -117,6 +119,8 @@ public class Sys extends Mass {
         exit = new Button("Exit", 750, 40) {
           @Override
           public void execute() {
+            MusicApp.theSysEd.delete();
+            new Page();
             System.out.println("TODO: exit button : SysEd");
           }
         };
@@ -130,13 +134,13 @@ public class Sys extends Mass {
         });
         addReaction(new Reaction("E-E", "cycle-staffs") {
           public int bid(Stroke g) {
+            if(fmts.size() == 0){return UC.noBid;}
             if(g.xl() < 100){return UC.noBid;}
             return (g.vs.loc.y < guideline(y)) ? 100: UC.noBid;
           }
           public void act(Stroke g) {
             Staff.Fmt s = getFmtBeforeDy(g.yu()-y);
             if(s == null){s = fmts.get(0);}
-            if(s == null){return;}
             s.cycleLines();
           }
         });
@@ -190,8 +194,6 @@ public class Sys extends Mass {
             s.barContinues = !s.barContinues;
           }
         });
-        //toggle bar connection S-S
-        //cycle lines and clefs E-E
       }
 
       @Override
@@ -214,8 +216,14 @@ public class Sys extends Mass {
           }
         }
       }
+    
+      @Override
+      public void delete(){
+        super.delete();
+        exit.delete();
+      }
     }
-
+    
     public static class Bracket {
       public int nStaff1, nStaff2;
       public int eShape; // 0 = brace, 1 = primary bracket, 2 = secondary bracket

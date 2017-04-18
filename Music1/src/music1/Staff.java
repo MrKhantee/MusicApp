@@ -5,9 +5,12 @@ package Music1;
 
 import GraphicsLib.G.V;
 import GraphicsLib.G.VS;
+import InkApp.Reaction;
 import InkApp.Reaction.Mass;
-import java.awt.Color;
+import InkApp.Stroke;
+import InkApp.UC;
 import java.awt.Graphics;
+import music1.Clef;
 
 /**
  *
@@ -23,6 +26,14 @@ public class Staff extends Mass{
     this.sys = sys;
     this.nStaff = nStaff;
     this.fmt = getFmt();
+    addReaction(new Reaction("SW-SE", "Add clef"){
+      public int bid(Stroke s) {
+        if(s.xm() < sys.layout.x1 || s.xm() > sys.layout.x2){return UC.noBid;}
+        if(s.ym() < yTop() || s.ym() > yBottom()){return UC.noBid;}
+        return 50;
+      }
+      public void act(Stroke s) {new Clef(s.xm(), Staff.this);}
+    });
   }
   
   public Fmt getFmt(){return sys.layout.fmts.get(nStaff);}
@@ -31,10 +42,10 @@ public class Staff extends Mass{
   
   @Override
   public void show(Graphics g) {
-    g.setColor(Color.gray);
-    for(int i= 0; i< fmt.lines.length; i++) {
-      g.drawLine(sys.layout.x1, yOfLine(i), sys.layout.x2, yOfLine(i));
-    }
+//    g.setColor(UC.areaPurple);
+//    for(int i= 0; i< fmt.lines.length; i++) {
+//      g.drawLine(sys.layout.x1, yOfLine(fmt.lines[i]), sys.layout.x2, yOfLine(fmt.lines[i]));
+//    }
   }
 
   public int yTop() {
@@ -80,7 +91,7 @@ public class Staff extends Mass{
     }
 
     void showAt(Graphics g, int y) {
-      g.setColor(Color.BLACK);
+      g.setColor(UC.areaPurple);
       for(int i= 0; i< lines.length; i++) {
 				int yVal = lines[i] * H + y + dy;
 				g.drawLine(layout.x1, yVal, layout.x2, yVal);

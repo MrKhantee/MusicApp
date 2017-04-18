@@ -24,7 +24,8 @@ public class MusicApp extends Window{
       public static Layer staffs = Layer.getNewLayer();
       public static Layer bars = Layer.getNewLayer();
       public static Menu menu = new Menu(40,40);
-      public static Layout theLayout = new Layout(50, 750, 8);
+      public static Layout theLayout = null;
+      public static Layout.SysEd theSysEd = null;
      
 	     
 	    public MusicApp() {
@@ -86,7 +87,8 @@ public class MusicApp extends Window{
           });
           menuOtos.add(new Oto("Define System", 100,150){
             public void execute(){ 
-            theLayout.new SysEd(100);
+              theLayout = new Layout(50, 750, 8);
+              theSysEd = theLayout.new SysEd(100);
             }
           });
           for(Oto o: menuOtos){
