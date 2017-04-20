@@ -1,15 +1,16 @@
-package Music1;
+package music1;
 import InkApp.*;
 import GraphicsLib.Window;
 import InkApp.Reaction.Button;
 import InkApp.Reaction.Mass;
 import InkApp.Reaction.Oto;
-import Music1.Sys.Layout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import music1.Sys.Layout;
+import music1.Sys.Layout.SysEd;
 
 public class MusicApp extends Window{
 	    public static final int W = UC.initialWindowWidth,  
@@ -23,6 +24,7 @@ public class MusicApp extends Window{
 	  //  public static Layer layer =  Layer.getNewLayer();
       public static Layer staffs = Layer.getNewLayer();
       public static Layer bars = Layer.getNewLayer();
+      public static Layer notes = Layer.getNewLayer();
       public static Menu menu = new Menu(40,40);
       public static Layout theLayout = null;
       public static Layout.SysEd theSysEd = null;

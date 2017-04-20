@@ -1,7 +1,7 @@
 /*
  * Copyright Amanda Eller 2015
  */
-package Music1;
+package music1;
 
 import GraphicsLib.G.V;
 import GraphicsLib.G.VS;
@@ -10,7 +10,6 @@ import InkApp.Reaction.Mass;
 import InkApp.Stroke;
 import InkApp.UC;
 import java.awt.Graphics;
-import music1.Clef;
 
 /**
  *
@@ -20,12 +19,16 @@ public class Staff extends Mass{
   public Sys sys;
   public int nStaff;
   public Fmt fmt; 
+  public Clef.List clefs = new Clef.List();
+  public VS initialClefBox;
   
   public Staff(Sys sys, int nStaff){
     super(MusicApp.staffs);
     this.sys = sys;
     this.nStaff = nStaff;
     this.fmt = getFmt();
+    int H = fmt.H;
+    initialClefBox = new VS(new V(sys.layout.x1 + 2*H, fmt.dy+4*H + sys.y), new V(H,H));
     addReaction(new Reaction("SW-SE", "Add clef"){
       public int bid(Stroke s) {
         if(s.xm() < sys.layout.x1 || s.xm() > sys.layout.x2){return UC.noBid;}
@@ -34,6 +37,42 @@ public class Staff extends Mass{
       }
       public void act(Stroke s) {new Clef(s.xm(), Staff.this);}
     });
+    addReaction(new Reaction("S-S","add Bar"){
+      public int bid(Stroke s){
+        if(s.xm() < sys.layout.x1 || s.xm() > sys.layout.x2){return UC.noBid;}
+        return 15 + Math.abs(s.yu()-yTop()) + Math.abs(s.yd()-yBottom());
+        // cycle existing bar bids 10
+      }
+      public void act(Stroke s){ new Bar(sys, s.xm());}
+    });
+    addReaction(new Reaction("SW-SW","add Head"){
+      public int bid(Stroke s){
+        int h = fmt.H;
+        if(s.ym() < yTop() - h || s.ym() > yBottom() + h){return UC.noBid;}
+        if(s.xm() < sys.layout.x1 || s.xm() > sys.layout.x2){return UC.noBid;}
+        return 20;
+      }
+      public void act(Stroke s){new Head(Staff.this, 0, s.xm(), s.ym());}
+    });  
+    addReaction(new Reaction("E-E","add Ledger to Staff"){
+      public int bid(Stroke s){
+        int x = s.xm(); int y = s.ym(); int h = fmt.H;
+        if(Math.abs(yTop() - 2*h - y)>2*h && Math.abs(yBottom() + 2*h - y)>2*h){return UC.noBid;}
+        if(s.xm() < sys.layout.x1 || s.xm() > sys.layout.x2){return UC.noBid;}
+        return 50;
+      }
+      public void act(Stroke s){
+        int y = s.ym(); int h = fmt.H;
+        Time t = Staff.this.sys.times.getTime(s.xm());
+        Ledger l = t.getLedgerForStaff(Staff.this);
+        if(l == null){l = new Ledger(Staff.this, t);}
+        if(Math.abs(yTop() - 2*h - y)<=2*h){
+          l.addLedgerUp();
+        } else {
+          l.addLedgerDn();
+        }
+      }
+    });    
   }
   
   public Fmt getFmt(){return sys.layout.fmts.get(nStaff);}
@@ -42,6 +81,7 @@ public class Staff extends Mass{
   
   @Override
   public void show(Graphics g) {
+    Clef.showAt(g, getInitialClefShape(), initialClefBox);
 //    g.setColor(UC.areaPurple);
 //    for(int i= 0; i< fmt.lines.length; i++) {
 //      g.drawLine(sys.layout.x1, yOfLine(fmt.lines[i]), sys.layout.x2, yOfLine(fmt.lines[i]));
@@ -54,6 +94,35 @@ public class Staff extends Mass{
 
   public int yBottom() {
     return yOfLine(fmt.lines[fmt.lines.length-1]);
+  }
+  
+  public int getInitialClefShape(){
+   // System.out.println("getting initical clef shape for sys: "+this.sys.name);
+    Staff s = this.prevStaff();
+    Clef c = null;
+    while(s != null && (c = s.clefs.lastClef())== null){
+      s = s.prevStaff();
+    }
+    return (s == null) ? fmt.defaultClefEShape : c.eShape;
+  }
+  
+  public int getClefShapeAt(int x){
+    Clef c = clefs.clefAt(x);
+    return (c == null) ? getInitialClefShape() : c.eShape;
+  }
+  
+  public Staff prevStaff(){return (sys.prev != null) ? sys.prev.staffs.get(nStaff) : null;}
+
+  public int getDeg(int x, int y) {
+   // y translates directly to a line BUT 
+    // someday use Key (based on x) to evaluate degree
+    // for now degree = - line
+    int h = fmt.H;
+    int line = (100*h + y - yTop() + h/2)/h - 100;
+    int deg = Clef.midCLine[getClefShapeAt(x)] - line;
+    System.out.println("Degree: " + deg);
+    //return -line;
+    return deg; 
   }
   
   public static class Fmt{
@@ -96,6 +165,10 @@ public class Staff extends Mass{
 				int yVal = lines[i] * H + y + dy;
 				g.drawLine(layout.x1, yVal, layout.x2, yVal);
 			}
+    }
+    
+    public boolean isDrum(){
+      return lines == PERCUSSION_STAFF;
     }
     
     public int dyLastLine(){

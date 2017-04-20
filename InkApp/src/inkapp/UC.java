@@ -37,6 +37,7 @@ public class UC {
               areaGreen = new Color(175, 229, 162),
               areaPurple = new Color(186, 162, 229),
               areaTan = new Color(229, 204, 162),
+              staffLineColor = Color.LIGHT_GRAY,
               otoBackColor = areaSky,
               otoTextColor = inkColor,
               btnBackColor = areaGreen,

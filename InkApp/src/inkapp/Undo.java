@@ -25,6 +25,7 @@ public class Undo {
 	}
 	
 	public static void undo() {
+    System.out.println("UNDO!");
 		UNDO.list.remove(last()); // remove the undo stroke itself
 		if(!UNDO.list.isEmpty()) {
 			UNDO.list.remove(last());
@@ -34,7 +35,6 @@ public class Undo {
 		INITIAL_REACTIONS.enable();
 		for(I.Act a: UNDO.list) {
 			if(a instanceof Stroke) {
-			//	System.out.println("redoing :" + ((Stroke)a).shape.name);
 				a.act((Stroke)a);
 			} else {
 				a.act(null);

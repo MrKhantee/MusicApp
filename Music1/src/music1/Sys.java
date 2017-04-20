@@ -1,7 +1,7 @@
 /*
  * Copyright Amanda Eller 2015
  */
-package Music1;
+package music1;
 
 import InkApp.Ink.NamedInk;
 import InkApp.Reaction;
@@ -12,28 +12,30 @@ import InkApp.UC;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
-import music1.Bar;
-import music1.Clef;
-import music1.Page;
 
 /**
  *
  * @author Amanda
  */
 public class Sys extends Mass {
-
   public int y;
   public ArrayList<Staff> staffs;
   public Sys.Layout layout;
+  public Bar.List bars = new Bar.List();
+  public Time.Group times;
+  public Sys prev;
 
-  public Sys(Layout layout, int y) {
+  public Sys(Layout layout, int y, Sys prev) {
     super(MusicApp.staffs);
     this.layout = layout;
     this.y = y;
     this.staffs = new ArrayList<>();
+    this.prev = prev;
+    times = new Time.Group(this);
     for (int i = 0; i < layout.fmts.size(); i++) {
       staffs.add(layout.fmts.get(i).getNewStaff(this, i));
     }
+    bars.last = new Bar(this, layout.x2);
   }
   
   public int yBot(){

@@ -7,8 +7,6 @@ import InkApp.Reaction;
 import InkApp.Reaction.Mass;
 import InkApp.Stroke;
 import InkApp.UC;
-import Music1.MusicApp;
-import Music1.Sys;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
@@ -28,7 +26,8 @@ public class Page extends Mass {
             return (s.ym() > guideline()) ? 100 : UC.noBid;
           }
           public void act(Stroke s) {
-            systems.add(new Sys(MusicApp.theLayout, s.ym()));
+            Sys sy = lastSys();
+            systems.add(new Sys(MusicApp.theLayout, s.ym(), sy));
           }
         });
   }
@@ -37,7 +36,7 @@ public class Page extends Mass {
     return systems.isEmpty() ? 5 : lastSys().yBot();
   }
   
-  public  Sys lastSys(){
+  public Sys lastSys(){
     return systems.isEmpty() ? null : systems.get(systems.size()-1);
   }
   

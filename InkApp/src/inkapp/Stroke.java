@@ -180,7 +180,7 @@ public class Stroke implements I.Act{
 						bestShape = s;
 					}
 				}
-				return bestShape;	
+				return (bestDist < UC.hugeDistance) ? bestShape: null;	
 			}
 			
 		}
