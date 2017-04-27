@@ -16,7 +16,7 @@ import java.util.ArrayList;
  *
  * @author Amanda
  */
-public class Clef extends Mass implements Elt {
+public class Clef extends Mass{
   public int eShape;
   public static String[] clefNames = {"g-clef", "f-clef", "c-clef"};
   public static int[] midCLine = {10,-2,4};
@@ -41,11 +41,6 @@ public class Clef extends Mass implements Elt {
             cycleShape();
           }
     });
-  }
-
-  @Override
-  public Measure getMeasure() {
-    return null;
   }
 
   public void cycleShape(){eShape = cycle(eShape);}

@@ -10,22 +10,25 @@ import InkApp.UC;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
  * @author Amanda
  */
-public class Bar  extends Mass{
+public class Bar  extends Mass implements Comparable<Bar>{
   public int eShape;
   public int x;
   public Sys sys;
   public int dKey;
+  public int key;
   //public Time.Group times;
   
   public Bar(Sys sys, int x){
     super(MusicApp.bars);
     this.sys = sys;
     this.x = x;
+    sys.bars.add(this);
     addReaction(new Reaction("DOT","dot a Bar"){
       public int bid(Stroke s){
         if(s.ym() < sys.y || s.ym() > sys.yBot()){return UC.noBid;}
@@ -56,7 +59,10 @@ public class Bar  extends Mass{
         if(s.ym() < Bar.this.sys.y || s.ym() > Bar.this.sys.yBot()){return UC.noBid;}
         return 10;
       }
-      public void act(Stroke s){Bar.this.dKey++;}
+      public void act(Stroke s){
+        Bar.this.dKey++;
+        MusicApp.thePage.setKeyAtAllBars();
+      }
     });
     addReaction(new Reaction("W-W","key dn"){
       public int bid(Stroke s){
@@ -68,7 +74,10 @@ public class Bar  extends Mass{
         if(s.ym() < Bar.this.sys.y || s.ym() > Bar.this.sys.yBot()){return UC.noBid;}
         return 10;
       }
-      public void act(Stroke s){Bar.this.dKey--;}
+      public void act(Stroke s){
+        Bar.this.dKey--;
+        MusicApp.thePage.setKeyAtAllBars();
+      }
     });  
   }
   
@@ -122,8 +131,12 @@ public class Bar  extends Mass{
       } 
     }
     if(dKey != 0){
-      g.setColor(Color.LIGHT_GRAY);
-      g.drawString(""+dKey, x, sys.y - 5);
+      for(Staff s : sys.staffs){
+        if(s.fmt.lines == Staff.Fmt.MUSIC_STAFF){
+          int cs = s.getClefShapeAt(x);
+          Accid.keySigAt(g, key, dKey, x+s.fmt.H, s.yTop(), cs, s.fmt.H);
+        }
+      }
     }
   }
   
@@ -139,10 +152,28 @@ public class Bar  extends Mass{
     g.drawLine(x, y1, x+dx, y1-dy);
     g.drawLine(x, y2, x+dx, y2+dy);
   }
+
+  @Override
+  public int compareTo(Bar b) {return this.x - b.x;}
    
     public static class List extends ArrayList<Bar>{
     public Bar first, last;
    
+    @Override
+    public boolean add(Bar b){
+      super.add(b);
+      Collections.sort(this);
+      /* //testing sort
+      System.out.print("Sorting bars by x");
+      for(Bar t : this){
+        System.out.print (":" + t.x);
+      }
+      System.out.println();
+      */
+      MusicApp.thePage.setKeyAtAllBars(); // new bar forces re-evaluation of key
+      return true;
+    }
+    
     public Bar closestBar(int x){
       Bar res = first; int d = res.dist(x);
       for(Bar b : this){
@@ -150,6 +181,14 @@ public class Bar  extends Mass{
         if(nd < d){d = nd; res = b;}
       }
       return res;
+    }
+    
+    public Bar barAt(int x){
+      Bar res = first; int d = first.x;
+      for(Bar b : this){
+        if(d < b.x && b.x < x){d = b.x; res = b;}
+      }
+      return res;    
     }
     
     public void show(Graphics g){ for(Bar b : this){b.show(g);}}

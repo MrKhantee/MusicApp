@@ -1,5 +1,6 @@
 package InkApp;
 
+//OURS
 import GraphicsLib.G;
 import GraphicsLib.Window;
 import java.awt.Color;
@@ -51,34 +52,34 @@ public abstract class Reaction implements I.React{
 		shapeMap.clear();
 	}
 	
-	public static class List extends ArrayList<Reaction>{
-		
-		public Reaction bestReaction(Stroke g) {
-			Reaction res = null;
-			int bestBid = UC.noBid;
-			for(Reaction r : this) {
-				int b = r.bid(g);
-				if(b<bestBid) {
-					bestBid = b;
-					res = r;
-				}
-			}
-			return res;
-		}
-		
-		public void enable() {
-			for(Reaction r : this) {
-//				System.out.println("Enabling : "+ r.shape.name + "purp:" + r.purpose);
-				r.enable();
-			}
-		}
-		
-		public void disable() {
-			for(Reaction r : this) {
-				r.disable();
-			}
-		}
-	}
+	public static class List{
+    private ArrayList<Reaction> theList = new ArrayList<>();
+    
+    // best reaction used on the lists in the Map sorted by shape for recognition
+    public Reaction bestReaction(Stroke g){
+      Reaction res = null; int bestBid = UC.noBid;
+      for(Reaction r : theList){
+        int b = r.bid(g);
+        if(b < bestBid){bestBid = b; res = r;}
+      }
+      System.out.println("best reaction bid = "+bestBid +" " + this);
+      return res;
+    }
+    
+    public void clear(){theList.clear();}
+    public void add(Reaction r){theList.add(r);}
+    public void remove(Reaction r){theList.remove(r);}
+    public int size(){return theList.size();}
+    
+    // used to get reactions into and out of the Map byShape so they can be recognized
+    public void enableAll(){for(Reaction r : theList){r.enable();}}
+    public void disableAll(){for(Reaction r : theList){r.disable();}}
+    public String toString(){
+      String res = "{"; String sep = "";
+      for(Reaction r : theList){res += sep + r.purpose; sep = ", ";}
+      return res + "}";
+    }
+  }
 	
 	public static abstract class Mass extends Reaction.List implements I.Show{
 		public static Mass DEFAULT = null;
@@ -89,20 +90,20 @@ public abstract class Reaction implements I.React{
       layer.add(this);
     }
     
-		@Override
-		public void clear() {
-			this.disable();
-			super.clear();
-		}
-		
-		@Override
-		public boolean add(Reaction r) {
-			return addReaction(r);
-		}
-		
-		public boolean addReaction(Reaction r) {
+//		@Override
+//		public void clear() {
+//			this.disable();
+//			super.clear();
+//		}
+//		
+//		@Override
+//		public boolean add(Reaction r) {
+//			return addReaction(r);
+//		}
+//		
+		public void addReaction(Reaction r) {
 			r.enable();
-			return super.add(r);
+			super.add(r);
 		}
 		
 		public void removeReaction(Reaction r) {
@@ -112,20 +113,20 @@ public abstract class Reaction implements I.React{
 		
 		public void delete() {
 			layer.remove(this);
-			clear();
+			disableAll();
 		}
 		
-    public void enable(){
-      if(!layer.contains(this)){
-        layer.add(this);
-      }
-      super.enable();
-    }
+//    public void enable(){
+//      if(!layer.contains(this)){
+//        layer.add(this);
+//      }
+//      super.enable();
+//    }
     
-    public void disable(){
-      layer.remove(this);
-      super.disable();
-    }
+//    public void disable(){
+//      layer.remove(this);
+//      super.disable();
+//    }
     
 		//this is called by Undo
 		public static void resetToDefault() {
@@ -133,7 +134,7 @@ public abstract class Reaction implements I.React{
 			Layer.clearAll();
 			if(DEFAULT != null) {
 				DEFAULT.layer.add(DEFAULT);
-				DEFAULT.enable();
+				DEFAULT.enableAll();
 			}
 		}
 	}
@@ -149,8 +150,10 @@ public abstract class Reaction implements I.React{
     public static void clearAll() {
       for(Oto o:all){
         //o.delete();
-        o.disable();
+        o.layer.remove(o);
+        o.disableAll();
       }
+      all.clear();
     }
     
     @Override
@@ -177,6 +180,7 @@ public abstract class Reaction implements I.React{
       this.box = new G.VS(new G.V(x, y), new G.V(w,h));
       addReaction(new Reaction("DOT", "Button action") {
         public int bid(Stroke g) {
+          String name = Button.this.btnName;
           if(box.contains(g.xm(), g.ym())){
             return 10;
           }else{return UC.noBid;}

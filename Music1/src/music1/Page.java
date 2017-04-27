@@ -40,6 +40,18 @@ public class Page extends Mass {
     return systems.isEmpty() ? null : systems.get(systems.size()-1);
   }
   
+  public void setKeyAtAllBars(){
+      int k = 0; // key accumulator
+      for(Sys s : systems){
+        for(Bar b: s.bars){
+          k += b.dKey;
+          while(k > 7){k -= 12;}
+          while(k < -7){k += 12;}
+          b.key = k;
+        }
+      }
+  }
+  
   @Override
   public void show(Graphics g) {
     g.setColor(Color.BLUE);

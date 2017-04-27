@@ -35,12 +35,16 @@ public class Sys extends Mass {
     for (int i = 0; i < layout.fmts.size(); i++) {
       staffs.add(layout.fmts.get(i).getNewStaff(this, i));
     }
+    bars.first = new Bar(this, layout.x1);
     bars.last = new Bar(this, layout.x2);
   }
   
-  public int yBot(){
-    return layout.guideline(y);
+  public int keyAt(int x){
+    // return -1; // if you lie about the key like this the note stop reacting to key change
+    return bars.barAt(x).key;
   }
+  
+  public int yBot(){return layout.guideline(y);}
 
   @Override
   public void show(Graphics g) {
@@ -48,7 +52,6 @@ public class Sys extends Mass {
   }
 
   public static class Layout {
-
     public int x1, x2;
     public int defaultH;
     public ArrayList<Staff.Fmt> fmts;
@@ -122,7 +125,7 @@ public class Sys extends Mass {
           @Override
           public void execute() {
             MusicApp.theSysEd.delete();
-            new Page();
+            MusicApp.thePage = new Page();
             System.out.println("TODO: exit button : SysEd");
           }
         };

@@ -32,7 +32,7 @@ public class Undo {
 		}
     Area.resetToDefault();
 		Reaction.Mass.resetToDefault();
-		INITIAL_REACTIONS.enable();
+		INITIAL_REACTIONS.enableAll();
 		for(I.Act a: UNDO.list) {
 			if(a instanceof Stroke) {
 				a.act((Stroke)a);

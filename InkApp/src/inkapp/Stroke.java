@@ -58,6 +58,18 @@ public class Stroke implements I.Act{
     return Math.abs(xm() - (x1+x2)/2) + Math.abs(ym()- (y1+y2)/2);
   }
   
+  public int middleBotInBox(int x1, int y1, int x2, int y2){// used on DnArrow
+    if(xr() < x1 || xl() > x2 || yd() < y1 || yd() > y2){return UC.noBid;}
+    return Math.abs(xm()-(x1+x2)/2) + Math.abs(yd() - (y1+y2)/2);
+  }
+  
+  public int hStrokeCrossesVLine(int x, int y1, int y2){
+    System.out.println("Stroke Crosses " + y1 + ", " + ym() + ", " + y2);
+    if(xr() < x || xl() > x){return UC.noBid;}
+    if(ym() < y1 || ym() > y2){return UC.noBid;}
+    return 20;
+  }
+  
 	private static boolean inkIsDot() {
 		return (Ink.BUFFER.bbox.h.s < UC.dotSize && Ink.BUFFER.bbox.v.s < UC.dotSize);
 	}

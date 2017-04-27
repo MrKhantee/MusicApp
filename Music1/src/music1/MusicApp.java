@@ -15,19 +15,14 @@ import music1.Sys.Layout.SysEd;
 public class MusicApp extends Window{
 	    public static final int W = UC.initialWindowWidth,  
 	    		H = UC.initialWindowWidth; 
-//	    		GBL = UC.greenBoxLoc,
-//	    		GBS = UC.greenBoxSize;
-//	    public static G.VS BACKGROUND = new VS(new V(), new V(W,H)); 
-//	    public static VS nb = new VS(new BBox(GBL,GBS));
-	 //   public static InkList inkList = null;
-	  //  public static Music1 music1 = new Music1();
-	  //  public static Layer layer =  Layer.getNewLayer();
       public static Layer staffs = Layer.getNewLayer();
       public static Layer bars = Layer.getNewLayer();
       public static Layer notes = Layer.getNewLayer();
+      public static Layer times = Layer.getNewLayer();
       public static Menu menu = new Menu(40,40);
       public static Layout theLayout = null;
       public static Layout.SysEd theSysEd = null;
+      public static Page thePage;
      
 	     
 	    public MusicApp() {
@@ -94,14 +89,17 @@ public class MusicApp extends Window{
             }
           });
           for(Oto o: menuOtos){
-            o.disable();
+            o.disableAll();
+            o.layer.remove(o);
           }
         }
 
         @Override
         public void execute() {
           for(Oto o: menuOtos){
-            o.enable();
+            o.enableAll();
+            o.layer.add(o);
+            Oto.all.add(o);
           }
         }
       }

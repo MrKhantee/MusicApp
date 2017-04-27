@@ -96,6 +96,11 @@ public class Staff extends Mass{
     return yOfLine(fmt.lines[fmt.lines.length-1]);
   }
   
+  public int keyAdj(int x){
+    int res = (7 + 3*sys.keyAt(x))%7;
+    return (res > 3)? res - 7 : res;
+  }
+  
   public int getInitialClefShape(){
    // System.out.println("getting initical clef shape for sys: "+this.sys.name);
     Staff s = this.prevStaff();
